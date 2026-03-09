@@ -219,43 +219,42 @@ def main(n):
         t += dt
 
         # get density for plotting
-        rho = getDensity(pos, pos, m, h)
+    rho = getDensity(pos, pos, m, h)
+    # rho_radial = getDensity(rr, pos, m, h).get()
+    # pos = pos.get()
+    
+    # plt.sca(ax1)
+    # plt.cla()
+    # cval = cp.minimum((rho - 3) / 3, 1).flatten()
+    # plt.scatter(
+    #     pos[:, 0], pos[:, 1], c=cval.get(), cmap=plt.cm.autumn, s=10, alpha=0.5
+    # )
+    # ax1.set(xlim=(-1.4, 1.4), ylim=(-1.2, 1.2))
+    # ax1.set_aspect("equal", "box")
+    # ax1.set_xticks([-1, 0, 1])
+    # ax1.set_yticks([-1, 0, 1])
+    # ax1.set_facecolor("black")
+    # ax1.set_facecolor((0.1, 0.1, 0.1))
 
-        # plot in real time
-        if plotRealTime or (i == Nt - 1):
-            plt.sca(ax1)
-            plt.cla()
-            cval = cp.minimum((rho - 3) / 3, 1).flatten()
-            plt.scatter(
-                pos[:, 0], pos[:, 1], c=cval, cmap=plt.cm.autumn, s=10, alpha=0.5
-            )
-            ax1.set(xlim=(-1.4, 1.4), ylim=(-1.2, 1.2))
-            ax1.set_aspect("equal", "box")
-            ax1.set_xticks([-1, 0, 1])
-            ax1.set_yticks([-1, 0, 1])
-            ax1.set_facecolor("black")
-            ax1.set_facecolor((0.1, 0.1, 0.1))
+    # plt.sca(ax2)
+    # plt.cla()
+    # ax2.set(xlim=(0, 1), ylim=(0, 3))
+    # ax2.set_aspect(0.1)
+    # plt.plot(rlin.get(), rho_analytic.get(), color="gray", linewidth=2)
+    
+    # plt.plot(rlin.get(), rho_radial, color="blue")
 
-            plt.sca(ax2)
-            plt.cla()
-            ax2.set(xlim=(0, 1), ylim=(0, 3))
-            ax2.set_aspect(0.1)
-            plt.plot(rlin, rho_analytic, color="gray", linewidth=2)
-            rho_radial = getDensity(rr, pos, m, h)
-            plt.plot(rlin, rho_radial, color="blue")
-            # plt.pause(0.001)
+    # # add labels/legend
+    # plt.sca(ax2)
+    # plt.xlabel("radius")
+    # plt.ylabel("density")
 
-    # add labels/legend
-    plt.sca(ax2)
-    plt.xlabel("radius")
-    plt.ylabel("density")
-
-    # Save figure
-    plt.savefig("sph.png", dpi=240)
-    plt.show()
+    # # Save figure
+    # plt.savefig("sph.png", dpi=240)
+    # plt.show()
 
     return 0
 
 
 if __name__ == "__main__":
-    main(400)
+    main(1000)
