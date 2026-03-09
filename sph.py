@@ -151,11 +151,11 @@ def getAcc(pos, vel, m, h, k, n, lmbda, nu):
     return a
 
 
-def main():
+def main(N):
     """SPH simulation"""
 
     # Simulation parameters
-    N = 400  # Number of particles
+    N = N  # Number of particles
     t = 0  # current time of the simulation
     tEnd = 12  # time at which simulation ends
     dt = 0.04  # timestep
@@ -165,7 +165,7 @@ def main():
     k = 0.1  # equation of state constant
     n = 1  # polytropic index
     nu = 1  # damping
-    plotRealTime = True  # switch on for plotting as the simulation goes along
+    plotRealTime = False  # switch on for plotting as the simulation goes along
 
     # Generate Initial Conditions
     np.random.seed(42)  # set the random number generator seed
@@ -240,19 +240,19 @@ def main():
             plt.plot(rlin, rho_analytic, color="gray", linewidth=2)
             rho_radial = getDensity(rr, pos, m, h)
             plt.plot(rlin, rho_radial, color="blue")
-            plt.pause(0.001)
+            # plt.pause(0.001)
 
     # add labels/legend
-    plt.sca(ax2)
-    plt.xlabel("radius")
-    plt.ylabel("density")
+    # plt.sca(ax2)
+    # plt.xlabel("radius")
+    # plt.ylabel("density")
 
-    # Save figure
-    plt.savefig("sph.png", dpi=240)
-    plt.show()
+    # # Save figure
+    # plt.savefig("sph.png", dpi=240)
+    # plt.show()
 
     return 0
 
 
 if __name__ == "__main__":
-    main()
+    main(400)
