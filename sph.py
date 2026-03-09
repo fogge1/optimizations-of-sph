@@ -9,7 +9,6 @@ Philip Mocz (2020) Princeton University, @PMocz
 Simulate the structure of a star with SPH
 """
 
-
 def W(x, y, z, h):
     """
     Gausssian Smoothing kernel (3D)
@@ -25,7 +24,6 @@ def W(x, y, z, h):
     w = (1.0 / (h * np.sqrt(np.pi))) ** 3 * np.exp(-(r**2) / h**2)
 
     return w
-
 
 def gradW(x, y, z, h):
     """
@@ -45,7 +43,6 @@ def gradW(x, y, z, h):
     wz = n * z
 
     return wx, wy, wz
-
 
 def getPairwiseSeparations(ri, rj):
     """
@@ -75,7 +72,6 @@ def getPairwiseSeparations(ri, rj):
 
     return dx, dy, dz
 
-
 def getDensity(r, pos, m, h):
     """
     Get Density at sampling locations from SPH particle distribution
@@ -93,7 +89,6 @@ def getDensity(r, pos, m, h):
 
     return rho
 
-
 def getPressure(rho, k, n):
     """
     Equation of State
@@ -106,7 +101,6 @@ def getPressure(rho, k, n):
     P = k * rho ** (1 + 1 / n)
 
     return P
-
 
 def getAcc(pos, vel, m, h, k, n, lmbda, nu):
     """
@@ -149,10 +143,9 @@ def getAcc(pos, vel, m, h, k, n, lmbda, nu):
     a -= nu * vel
 
     return a
-
-
+@profile
 def main(N):
-    """SPH simulation"""
+    """SPH simulation - Pure Physics Engine (No Plotting)"""
 
     # Simulation parameters
     N = N  # Number of particles
@@ -165,7 +158,6 @@ def main(N):
     k = 0.1  # equation of state constant
     n = 1  # polytropic index
     nu = 1  # damping
-    plotRealTime = False  # switch on for plotting as the simulation goes along
 
     # Generate Initial Conditions
     np.random.seed(42)  # set the random number generator seed
@@ -188,16 +180,6 @@ def main(N):
     # number of timesteps
     Nt = int(np.ceil(tEnd / dt))
 
-    # prep figure
-    fig = plt.figure(figsize=(4, 5), dpi=80)
-    grid = plt.GridSpec(3, 1, wspace=0.0, hspace=0.3)
-    ax1 = plt.subplot(grid[0:2, 0])
-    ax2 = plt.subplot(grid[2, 0])
-    rr = np.zeros((100, 3))
-    rlin = np.linspace(0, 1, 100)
-    rr[:, 0] = rlin
-    rho_analytic = lmbda / (4 * k) * (R**2 - rlin**2)
-
     # Simulation Main Loop
     for i in range(Nt):
         # (1/2) kick
@@ -215,44 +197,8 @@ def main(N):
         # update time
         t += dt
 
-        # get density for plotting
-        rho = getDensity(pos, pos, m, h)
-
-        # plot in real time
-        if plotRealTime or (i == Nt - 1):
-            plt.sca(ax1)
-            plt.cla()
-            cval = np.minimum((rho - 3) / 3, 1).flatten()
-            plt.scatter(
-                pos[:, 0], pos[:, 1], c=cval, cmap=plt.cm.autumn, s=10, alpha=0.5
-            )
-            ax1.set(xlim=(-1.4, 1.4), ylim=(-1.2, 1.2))
-            ax1.set_aspect("equal", "box")
-            ax1.set_xticks([-1, 0, 1])
-            ax1.set_yticks([-1, 0, 1])
-            ax1.set_facecolor("black")
-            ax1.set_facecolor((0.1, 0.1, 0.1))
-
-            plt.sca(ax2)
-            plt.cla()
-            ax2.set(xlim=(0, 1), ylim=(0, 3))
-            ax2.set_aspect(0.1)
-            plt.plot(rlin, rho_analytic, color="gray", linewidth=2)
-            rho_radial = getDensity(rr, pos, m, h)
-            plt.plot(rlin, rho_radial, color="blue")
-            # plt.pause(0.001)
-
-    # add labels/legend
-    # plt.sca(ax2)
-    # plt.xlabel("radius")
-    # plt.ylabel("density")
-
-    # # Save figure
-    # plt.savefig("sph.png", dpi=240)
-    # plt.show()
-
-    return 0
+    return pos, vel
 
 
 if __name__ == "__main__":
-    main(400)
+    pos, vel = main(400)
