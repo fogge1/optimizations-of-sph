@@ -11,6 +11,24 @@ Philip Mocz (2020) Princeton University, @PMocz
 Simulate the structure of a star with SPH
 """
 
+def getDensity_normal(r, pos, m, h):
+    """
+    Get Density at sampling locations from SPH particle distribution
+    r     is an M x 3 matrix of sampling locations
+    pos   is an N x 3 matrix of SPH particle positions
+    m     is the particle mass
+    h     is the smoothing length
+    rho   is M x 1 vector of densities
+    """
+
+    M = r.shape[0]
+
+    dx, dy, dz = getPairwiseSeparations(r, pos)
+    rho = np.sum(m * W(dx, dy, dz, h), 1).reshape((M, 1))
+
+    return rho
+
+
 def getAcc_normal(pos, vel, m, h, k, n, lmbda, nu):
     """
     Calculate the acceleration on each SPH particle
@@ -28,7 +46,7 @@ def getAcc_normal(pos, vel, m, h, k, n, lmbda, nu):
     N = pos.shape[0]
 
     # Calculate densities at the position of the particles
-    rho = getDensity(pos, pos, m, h)
+    rho = getDensity_normal(pos, pos, m, h)
 
     # Get the pressures
     P = getPressure(rho, k, n)
@@ -118,8 +136,14 @@ def getPairwiseSeparations(ri, rj):
 
     return dx, dy, dz
 
+def getDensity_chunk(r_chunk,  pos, m, h):
+    M = r_chunk.shape[0]
 
-def getDensity(r, pos, m, h):
+    dx, dy, dz = getPairwiseSeparations(r_chunk, pos)
+    rho = np.sum(m * W(dx, dy, dz, h), 1).reshape((M, 1))
+    return rho
+
+def getDensity(r, pos, m, h, pool):
     """
     Get Density at sampling locations from SPH particle distribution
     r     is an M x 3 matrix of sampling locations
@@ -129,11 +153,15 @@ def getDensity(r, pos, m, h):
     rho   is M x 1 vector of densities
     """
 
-    M = r.shape[0]
+    # M = r.shape[0]
 
-    dx, dy, dz = getPairwiseSeparations(r, pos)
-    rho = np.sum(m * W(dx, dy, dz, h), 1).reshape((M, 1))
-
+    # dx, dy, dz = getPairwiseSeparations(r, pos)
+    # rho = np.sum(m * W(dx, dy, dz, h), 1).reshape((M, 1))
+    
+    r_chunks = np.array_split(r, 4, axis=0)
+    args = [(chunk, pos, m, h) for chunk in r_chunks]
+    rho_chunks = pool.starmap(getDensity_chunk, args)
+    rho = np.vstack(rho_chunks)
     return rho
 
 
@@ -151,7 +179,7 @@ def getPressure(rho, k, n):
     return P
 
 
-def getAcc(pos, vel, m, h, k, n, lmbda, nu, pool, pos_chunks, vel_chunks, acc_chunks, num_workers):
+def getAcc(pos, m, h, k, n, lmbda, nu, vel_chunk, rho, P, i, elements):
     """
     Calculate the acceleration on each SPH particle
     pos   is an N x 3 matrix of positions
@@ -164,41 +192,29 @@ def getAcc(pos, vel, m, h, k, n, lmbda, nu, pool, pos_chunks, vel_chunks, acc_ch
     nu    viscosity
     a     is N x 3 matrix of accelerations
     """
+    pos_chunk = pos[i*elements:(i+1)*elements, :]
+    rho_chunk = rho[i*elements:(i+1)*elements, :]
+    P_chunk =   P[i*elements:(i+1)*elements, :]
 
-    N = pos.shape[0]
-
-    # Calculate densities at the position of the particles
-    rho = pool.starmap(getDensity, [(pos_chunks[i], pos, m, h) for i in range(num_workers)])
-    rho = np.vstack(rho)
-    # Get the pressures
-    P = getPressure(rho, k, n)
+    N = pos_chunk.shape[0]
     
     # Get pairwise distances and gradients
-    dx, dy, dz = getPairwiseSeparations(pos, pos)
-    dx_chunks = np.array_split(dx, num_workers)
-    dy_chunks = np.array_split(dy, num_workers)
-    dz_chunks = np.array_split(dz, num_workers)
-    results = pool.starmap(gradW, [(dx_chunks[i], dy_chunks[i], dz_chunks[i], h) for i in range(num_workers)])
-    x_list = [i[0] for i in results]
-    y_list = [i[1] for i in results]
-    z_list = [i[2] for i in results]
+    dx, dy, dz = getPairwiseSeparations(pos_chunk, pos)
+    dWx, dWy, dWz = gradW(dx, dy, dz, h)
     
-    dWx = np.vstack(x_list)
-    dWy = np.vstack(y_list)
-    dWz = np.vstack(z_list)
     # Add Pressure contribution to accelerations
-    ax = -np.sum(m * (P / rho**2 + P.T / rho.T**2) * dWx, 1).reshape((N, 1))
-    ay = -np.sum(m * (P / rho**2 + P.T / rho.T**2) * dWy, 1).reshape((N, 1))
-    az = -np.sum(m * (P / rho**2 + P.T / rho.T**2) * dWz, 1).reshape((N, 1))
+    ax = -np.sum(m * (P_chunk / rho_chunk**2 + P.T / rho.T**2) * dWx, 1).reshape((N, 1))
+    ay = -np.sum(m * (P_chunk / rho_chunk**2 + P.T / rho.T**2) * dWy, 1).reshape((N, 1))
+    az = -np.sum(m * (P_chunk / rho_chunk**2 + P.T / rho.T**2) * dWz, 1).reshape((N, 1))
 
     # pack together the acceleration components
     a = np.hstack((ax, ay, az))
 
     # Add external potential force
-    a -= lmbda * pos
+    a -= lmbda * pos_chunk
 
     # Add viscosity
-    a -= nu * vel
+    a -= nu * vel_chunk
 
     return a
 
@@ -241,26 +257,25 @@ def main(N):
     Nt = int(np.ceil(tEnd / dt))
 
     num_workers = 4
-
+    elements = N//num_workers
     
 
     # Simulation Main Loop
     with multiprocessing.Pool(processes=num_workers) as pool:
         for i in range(Nt):
-            pos_chunks = np.array_split(pos, num_workers)
-            vel_chunks = np.array_split(vel, num_workers)
-            acc_chunks = np.array_split(acc, num_workers)
-            
-
             # (1/2) kick
             vel += acc * dt / 2
-
             # drift
             pos += vel * dt
 
+            # Calculate densities at the position of the particles
+            rho = getDensity(pos, pos, m, h, pool)
+            # Get the pressures
+            P = getPressure(rho, k, n)
             # update accelerations
-            acc = getAcc(pos, vel, m, h, k, n, lmbda, nu, pool, pos_chunks, vel_chunks, acc_chunks, num_workers)
-
+            
+            acc = pool.starmap(getAcc, [(pos, m, h, k, n, lmbda, nu, vel[i*elements:(i+1)*elements, :], rho, P, i, elements) for i in range(num_workers)])
+            acc = np.vstack(acc)
             # (1/2) kick
             vel += acc * dt / 2
 
@@ -268,7 +283,7 @@ def main(N):
             t += dt
 
     # get density for plotting
-    rho = getDensity(pos, pos, m, h)
+    #rho = getDensity(pos, pos, m, h)
 
     # prep figure
     # fig = plt.figure(figsize=(4, 5), dpi=80)

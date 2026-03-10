@@ -188,15 +188,7 @@ def main(N):
     # number of timesteps
     Nt = int(np.ceil(tEnd / dt))
 
-    # prep figure
-    fig = plt.figure(figsize=(4, 5), dpi=80)
-    grid = plt.GridSpec(3, 1, wspace=0.0, hspace=0.3)
-    ax1 = plt.subplot(grid[0:2, 0])
-    ax2 = plt.subplot(grid[2, 0])
-    rr = np.zeros((100, 3))
-    rlin = np.linspace(0, 1, 100)
-    rr[:, 0] = rlin
-    rho_analytic = lmbda / (4 * k) * (R**2 - rlin**2)
+    
 
     # Simulation Main Loop
     for i in range(Nt):
@@ -216,9 +208,18 @@ def main(N):
         t += dt
 
     # get density for plotting
-    rho = getDensity(pos, pos, m, h)
+    #rho = getDensity(pos, pos, m, h)
 
-        
+    # prep figure
+    # fig = plt.figure(figsize=(4, 5), dpi=80)
+    # grid = plt.GridSpec(3, 1, wspace=0.0, hspace=0.3)
+    # ax1 = plt.subplot(grid[0:2, 0])
+    # ax2 = plt.subplot(grid[2, 0])
+    # rr = np.zeros((100, 3))
+    # rlin = np.linspace(0, 1, 100)
+    # rr[:, 0] = rlin
+    # rho_analytic = lmbda / (4 * k) * (R**2 - rlin**2)
+
     # plt.sca(ax1)
     # plt.cla()
     # cval = np.minimum((rho - 3) / 3, 1).flatten()
@@ -249,7 +250,8 @@ def main(N):
     # plt.savefig("sph.png", dpi=240)
     # plt.show()
 
-    return 0
+    return pos, vel
+    # return 0
 
 
 if __name__ == "__main__":
