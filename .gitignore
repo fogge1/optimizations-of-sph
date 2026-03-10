@@ -1,5 +1,15 @@
+# Virtuella miljöer
+env/
 .venv/
-*.so
+venv/
+
+# Python cache & Jupyter
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Cython bygg-filer
 *.c
 build/
-__pycache__/
+*.so
+*.pyd

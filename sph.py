@@ -9,7 +9,6 @@ Philip Mocz (2020) Princeton University, @PMocz
 Simulate the structure of a star with SPH
 """
 
-
 def W(x, y, z, h):
     """
     Gausssian Smoothing kernel (3D)
@@ -25,7 +24,6 @@ def W(x, y, z, h):
     w = (1.0 / (h * np.sqrt(np.pi))) ** 3 * np.exp(-(r**2) / h**2)
 
     return w
-
 
 def gradW(x, y, z, h):
     """
@@ -45,7 +43,6 @@ def gradW(x, y, z, h):
     wz = n * z
 
     return wx, wy, wz
-
 
 def getPairwiseSeparations(ri, rj):
     """
@@ -75,7 +72,6 @@ def getPairwiseSeparations(ri, rj):
 
     return dx, dy, dz
 
-
 def getDensity(r, pos, m, h):
     """
     Get Density at sampling locations from SPH particle distribution
@@ -93,7 +89,6 @@ def getDensity(r, pos, m, h):
 
     return rho
 
-
 def getPressure(rho, k, n):
     """
     Equation of State
@@ -106,7 +101,6 @@ def getPressure(rho, k, n):
     P = k * rho ** (1 + 1 / n)
 
     return P
-
 
 def getAcc(pos, vel, m, h, k, n, lmbda, nu):
     """
@@ -150,9 +144,8 @@ def getAcc(pos, vel, m, h, k, n, lmbda, nu):
 
     return a
 
-
 def main(N):
-    """SPH simulation"""
+    """SPH simulation - Pure Physics Engine (No Plotting)"""
 
     # Simulation parameters
     N = N  # Number of particles
@@ -165,7 +158,6 @@ def main(N):
     k = 0.1  # equation of state constant
     n = 1  # polytropic index
     nu = 1  # damping
-    plotRealTime = False  # switch on for plotting as the simulation goes along
 
     # Generate Initial Conditions
     np.random.seed(42)  # set the random number generator seed
@@ -255,4 +247,4 @@ def main(N):
 
 
 if __name__ == "__main__":
-    main(400)
+    pos, vel = main(400)
