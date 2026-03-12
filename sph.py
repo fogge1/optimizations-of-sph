@@ -32,7 +32,7 @@ def gradW(x, y, z, h):
     y     is a vector/matrix of y positions
     z     is a vector/matrix of z positions
     h     is the smoothing length
-    wx, wy, wz     is the evaluated gradient
+    wx, wy, wz     is the evaluated gradient 
     """
 
     r = np.sqrt(x**2 + y**2 + z**2)

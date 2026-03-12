@@ -25,7 +25,7 @@ def W(x, y, z, h):
 
     r = cp.sqrt(x**2 + y**2 + z**2)
 
-    w = (1.0 / (h * cp.sqrt(np.pi))) ** 3 * cp.exp(-(r**2) / h**2)
+    w = (1.0 / (h * cp.sqrt(cp.pi))) ** 3 * cp.exp(-(r**2) / h**2)
 
     return w
 
@@ -171,18 +171,18 @@ def main(n):
     plotRealTime = False  # switch on for plotting as the simulation goes along
 
     # Generate Initial Conditions
-    cp.random.seed(42)  # set the random number generator seed
-
+    np.random.seed(42)  # set the random number generator seed
+    np_pos = np.random.randn(N, 3)
     lmbda = (
         2
         * k
         * (1 + n)
-        * np.pi ** (-3 / (2 * n))
+        * cp.pi ** (-3 / (2 * n))
         * (M * gamma(5 / 2 + n) / R**3 / gamma(1 + n)) ** (1 / n)
         / R**2
     )  # ~ 2.01
     m = M / N  # single particle mass
-    pos = cp.random.randn(N, 3)  # randomly selected positions and velocities
+    pos = cp.asarray(np_pos) #cp.random.randn(N, 3)  # randomly selected positions and velocities
     vel = cp.zeros(pos.shape)
 
     # calculate initial gravitational accelerations
@@ -219,7 +219,7 @@ def main(n):
         t += dt
 
         # get density for plotting
-    rho = getDensity(pos, pos, m, h)
+    # rho = getDensity(pos, pos, m, h)
     # rho_radial = getDensity(rr, pos, m, h).get()
     # pos = pos.get()
     
@@ -253,7 +253,7 @@ def main(n):
     # plt.savefig("sph.png", dpi=240)
     # plt.show()
 
-    return 0
+    return pos.get(), vel.get()
 
 
 if __name__ == "__main__":
