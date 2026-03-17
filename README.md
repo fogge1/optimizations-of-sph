@@ -1,7 +1,13 @@
 # sph-python
-Smoothed-Particle Hydrodynamics simulation of Toy Star
+Optimizations of Smoothed-Particle Hydrodynamics simulation of Toy Star by
 
-## Create Your Own Smoothed-Particle Hydrodynamics Simulation (With Python)
+## Profiling
+
+Profiling of the baseline `sph.py` is done in the `profiling.ipynb´ jupyter notebook. Profiling is done with cProfile, line profiler and memory profiler.
+
+## Benchmarks
+
+Benchmarks of the baseline and optimizations are done in the `benchmarks.ipynb`. To benchmark and compare the optimizations we measure the runtime with different number of particles, then plot the results.
 
 ### Philip Mocz (2020) Princeton University, [@PMocz](https://twitter.com/PMocz)
 
@@ -9,9 +15,7 @@ Smoothed-Particle Hydrodynamics simulation of Toy Star
 
 Simulate a toy star with SPH
 
-
+Running the baseline:
 ```
 python sph.py
 ```
-
-![Simulation](./sph.png)
