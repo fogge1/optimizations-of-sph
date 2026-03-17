@@ -1,13 +1,68 @@
 # sph-python
-Optimizations of Smoothed-Particle Hydrodynamics simulation of Toy Star by
+Optimizations of Smoothed-Particle Hydrodynamics simulation of Toy Star
+
+## Optimizations
+
+3 optimizations were implemented during this project:
+
+- Cython
+- Multiprocessing
+- Cupy
+
+## Install
+
+```bash
+python -m venv venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+Install cupy for your cuda version. For cuda version 12.x:
+
+```bash
+pip install cupy-cuda12x
+```
+
+## Usage
+
+### Cython
+
+Build the cython code:
+
+```bash
+python setup.py build_ext --inplace
+```
+
+Import the sph_core in python script to run.
+
+### Multiprocessing
+
+```bash
+python sph_multiprocessing.py
+```
+
+### Cupy
+
+
+```bash
+python sph_cupy.py
+```
 
 ## Profiling
 
-Profiling of the baseline `sph.py` is done in the `profiling.ipynb´ jupyter notebook. Profiling is done with cProfile, line profiler and memory profiler.
+Profiling of the baseline `sph.py` and documentation of profiling is done in the `profiling.ipynb´ jupyter notebook. Profiling is done with cProfile, line profiler and memory profiler.
 
 ## Benchmarks
 
 Benchmarks of the baseline and optimizations are done in the `benchmarks.ipynb`. To benchmark and compare the optimizations we measure the runtime with different number of particles, then plot the results.
+
+## Correctness
+
+Validation of correctness is done in `benchmarks.ipynb`
+
+![Benchmarks](./benchmarks_plot.png)
+
 
 ### Philip Mocz (2020) Princeton University, [@PMocz](https://twitter.com/PMocz)
 
