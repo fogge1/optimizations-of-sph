@@ -51,7 +51,7 @@ python sph_cupy.py
 
 ## Profiling
 
-Profiling of the baseline `sph.py` and documentation of profiling is done in the `profiling.ipynb´ jupyter notebook. Profiling is done with cProfile, line profiler and memory profiler.
+Profiling of the baseline `sph.py` and documentation of profiling is done in the `profiling.ipynb` jupyter notebook. Profiling is done with cProfile, line profiler and memory profiler.
 
 ## Benchmarks
 
