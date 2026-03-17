@@ -57,11 +57,17 @@ Profiling of the baseline `sph.py` and documentation of profiling is done in the
 
 Benchmarks of the baseline and optimizations are done in the `benchmarks.ipynb`. To benchmark and compare the optimizations we measure the runtime with different number of particles, then plot the results.
 
+![Benchmarks](./images/benchmarks_plot.png)
+
+Benchmarks ran on system with:
+
+- NVIDIA RTX 3070 gpu
+- AMD Ryzeen 5600x 6 core cpu
+- 16 gb ram
+
 ## Correctness
 
 Validation of correctness is done in `benchmarks.ipynb`
-
-![Benchmarks](./benchmarks_plot.png)
 
 
 ### Philip Mocz (2020) Princeton University, [@PMocz](https://twitter.com/PMocz)
